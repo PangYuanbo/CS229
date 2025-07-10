@@ -19,6 +19,8 @@ def update_theta(theta, lr):
         the new value of theta after 1 iteration of gradient descend
     """
     # *** START CODE HERE ***
+    theta=theta.copy()-lr*2*theta.T.dot(A)
+    return theta
     # *** END CODE HERE ***
 
 def gradient_descend(J, theta_0, lr, update_theta, epsilon=1e-50):
@@ -36,6 +38,17 @@ def gradient_descend(J, theta_0, lr, update_theta, epsilon=1e-50):
     """
     theta = theta_0
     # *** START CODE HERE ***
+    prev_loss = J(theta)
+
+    while True:
+        new_theta = update_theta(theta, lr)
+        new_loss = J(new_theta)
+
+        if abs(new_loss - prev_loss) < epsilon or new_loss > 1e20:
+            break
+
+        theta = new_theta
+        prev_loss = new_loss
     # *** END CODE HERE ***
     return theta
 

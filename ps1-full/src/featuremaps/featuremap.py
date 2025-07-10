@@ -26,6 +26,8 @@ class LinearModel(object):
             y: Training example labels. Shape (n_examples,).
         """
         # *** START CODE HERE ***
+        self.X=X
+        self.y=y
         # *** END CODE HERE ***
 
     def create_poly(self, k, X):
@@ -38,6 +40,13 @@ class LinearModel(object):
             X: Training example inputs. Shape (n_examples, 2).
         """
         # *** START CODE HERE ***
+        x_org=self.X
+        self.X=np.zeros(x_org.shape[0],k+1)
+        X_poly=np.zeros(X.shape[0], k+1)
+        for i in range(k+1):
+            X_poly[:,i] = X[:]**i
+            self.X[:,i] = X_poly[:]**i
+        return X_poly
         # *** END CODE HERE ***
 
     def create_sin(self, k, X):
@@ -63,6 +72,16 @@ class LinearModel(object):
             Outputs of shape (n_examples,).
         """
         # *** START CODE HERE ***
+        m = X.shape[0]
+        y_pred = np.zeros((m, 1))
+        for i in range(m):
+            diff = self.X - X[i]
+            w = np.exp(-np.sum(diff ** 2, axis=1) / (2 * self.tau ** 2))
+            W = np.diag(w)
+
+            theta = np.linalg.pinv(self.x.T @ W @ self.x) @ self.x.T @ W @ self.y
+            y_pred[i] = X[i] @ theta
+        return y_pred
         # *** END CODE HERE ***
 
 
