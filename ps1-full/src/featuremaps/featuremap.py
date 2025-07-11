@@ -26,8 +26,8 @@ class LinearModel(object):
             y: Training example labels. Shape (n_examples,).
         """
         # *** START CODE HERE ***
-        self.X=X
-        self.y=y
+        self.theta=np.linalg.solve(X.T @ X, X.T @ y)
+
         # *** END CODE HERE ***
 
     def create_poly(self, k, X):
@@ -40,12 +40,9 @@ class LinearModel(object):
             X: Training example inputs. Shape (n_examples, 2).
         """
         # *** START CODE HERE ***
-        x_org=self.X
-        self.X=np.zeros(x_org.shape[0],k+1)
-        X_poly=np.zeros(X.shape[0], k+1)
+        X_poly=np.zeros((X.shape[0], k+1))
         for i in range(k+1):
-            X_poly[:,i] = X[:]**i
-            self.X[:,i] = X_poly[:]**i
+            X_poly[:,i] = X[:,1]**i
         return X_poly
         # *** END CODE HERE ***
 
@@ -58,6 +55,11 @@ class LinearModel(object):
             X: Training example inputs. Shape (n_examples, 2).
         """
         # *** START CODE HERE ***
+        X_sin=np.zeros((X.shape[0], k+2))
+        for i in range(k+1):
+            X_sin[:, i] = X[:, 1]**i
+        X_sin[:, k+1] = np.sin(X[:, 1])
+        return X_sin
         # *** END CODE HERE ***
 
     def predict(self, X):
@@ -75,12 +77,8 @@ class LinearModel(object):
         m = X.shape[0]
         y_pred = np.zeros((m, 1))
         for i in range(m):
-            diff = self.X - X[i]
-            w = np.exp(-np.sum(diff ** 2, axis=1) / (2 * self.tau ** 2))
-            W = np.diag(w)
 
-            theta = np.linalg.pinv(self.x.T @ W @ self.x) @ self.x.T @ W @ self.y
-            y_pred[i] = X[i] @ theta
+            y_pred[i] = X[i] @ self.theta
         return y_pred
         # *** END CODE HERE ***
 
@@ -97,6 +95,15 @@ def run_exp(train_path, sine=False, ks=[1, 2, 3, 5, 10, 20], filename='plot.png'
         Our objective is to train models and perform predictions on plot_x data
         '''
         # *** START CODE HERE ***
+        model = LinearModel()
+        if sine:
+            plot_x = model.create_sin(k, plot_x)
+            train_x = model.create_sin(k, train_x)
+        else:
+            plot_x = model.create_poly(k, plot_x)
+            train_x = model.create_poly(k, train_x)
+        model.fit(train_x, train_y)
+        plot_y = model.predict(plot_x)
         # *** END CODE HERE ***
         '''
         Here plot_y are the predictions of the linear model on the plot_x data
@@ -114,6 +121,7 @@ def main(train_path, small_path, eval_path):
     Run all expetriments
     '''
     # *** START CODE HERE ***
+    run_exp(train_path, sine=True, ks=[0,1,2,3, 5, 10, 20], filename='poly.png')
     # *** END CODE HERE ***
 
 if __name__ == '__main__':
