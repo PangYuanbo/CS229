@@ -35,6 +35,9 @@ class QP:
             # *** START CODE HERE ***
             # Compute the gradient of self.theta, self.phi using data X, Y
             # and update self.theta, self.phi
+            Dj_theta,Dj_Phi=self.gradient(X,Y)
+            self.theta-=eta*Dj_theta
+            self.phi-=eta*Dj_Phi
             # *** END CODE HERE ***
             if verbose:
                 log_steps.append(t)
@@ -74,6 +77,9 @@ class QP:
             # *** START CODE HERE ***
             # Compute the gradient of self.theta, self.phi using data X_batch, Y_batch
             # and update self.theta, self.phi
+            Dj_theta, Dj_Phi = self.gradient(X_batch, Y_batch)
+            self.theta -= eta * Dj_theta
+            self.phi -= eta * Dj_Phi
             # *** END CODE HERE ***
             if verbose:
                 log_steps.append(t)
@@ -89,6 +95,17 @@ class QP:
         """Return the gradient w.r.t. theta and phi
         """
         # *** START CODE HERE ***
+        n = X.shape[0]
+
+        beta = self.theta ** 2 - self.phi ** 2  # (d,)
+        y_pred = X @ beta  # (n,)
+        residual = y_pred - Y  # (n,)
+
+        # Compute gradients with correct broadcasting
+        grad_theta = ((residual[:, None]) * (X * self.theta)).mean(axis=0)  # (n,d) → (d,)
+        grad_phi = -((residual[:, None]) * (X * self.phi)).mean(axis=0)  # (n,d) → (d,)
+
+        return grad_theta, grad_phi
         # *** END CODE HERE ***
     
     def validation(self, X, Y):

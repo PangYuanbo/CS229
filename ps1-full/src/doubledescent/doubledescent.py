@@ -24,6 +24,9 @@ def regression(train_path, validation_path):
 
     val_err = 0
     # *** START CODE HERE ***
+    beta=np.linalg.pinv(x_train.T@x_train)@(x_train.T@y_train)
+    y_pred=x_validation@beta
+    val_err=np.mean((y_pred-y_validation)**2,axis=0)/2
     # *** END CODE HERE
     return val_err
 
@@ -44,6 +47,10 @@ def ridge_regression(train_path, validation_path):
 
     val_err = []
     # *** START CODE HERE ***
+    for lamda in reg_list:
+        beta = np.linalg.pinv(x_train.T @ x_train+lamda*np.identity(x_train.shape[1])) @ (x_train.T @ y_train)
+        y_pred = x_validation @ beta
+        val_err.append(np.mean((y_pred - y_validation) ** 2, axis=0) / 2)
     # *** END CODE HERE
     return val_err
 

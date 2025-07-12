@@ -56,9 +56,11 @@ class LinearModel(object):
         """
         # *** START CODE HERE ***
         X_sin=np.zeros((X.shape[0], k+2))
-        for i in range(k+1):
-            X_sin[:, i] = X[:, 1]**i
-        X_sin[:, k+1] = np.sin(X[:, 1])
+        x_vals = X[:, 1]
+        for i in range(k + 1):
+            X_sin[:, i] = x_vals ** i
+        X_sin[:, k + 1] = np.sin(x_vals)
+
         return X_sin
         # *** END CODE HERE ***
 
@@ -97,13 +99,13 @@ def run_exp(train_path, sine=False, ks=[1, 2, 3, 5, 10, 20], filename='plot.png'
         # *** START CODE HERE ***
         model = LinearModel()
         if sine:
-            plot_x = model.create_sin(k, plot_x)
-            train_x = model.create_sin(k, train_x)
+            plot_x_k = model.create_sin(k, plot_x)
+            train_x_k = model.create_sin(k, train_x)
         else:
-            plot_x = model.create_poly(k, plot_x)
-            train_x = model.create_poly(k, train_x)
-        model.fit(train_x, train_y)
-        plot_y = model.predict(plot_x)
+            plot_x_k = model.create_poly(k, plot_x)
+            train_x_k = model.create_poly(k, train_x)
+        model.fit(train_x_k, train_y)
+        plot_y = model.predict(plot_x_k)
         # *** END CODE HERE ***
         '''
         Here plot_y are the predictions of the linear model on the plot_x data
@@ -121,7 +123,7 @@ def main(train_path, small_path, eval_path):
     Run all expetriments
     '''
     # *** START CODE HERE ***
-    run_exp(train_path, sine=True, ks=[0,1,2,3, 5, 10, 20], filename='poly.png')
+    run_exp(train_path, sine=False, ks=[3], filename='degree_3_poly.png')
     # *** END CODE HERE ***
 
 if __name__ == '__main__':
