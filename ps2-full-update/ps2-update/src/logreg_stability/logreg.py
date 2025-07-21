@@ -15,6 +15,28 @@ def main(train_path, save_path):
     # Train a logistic regression classifier
     # Plot decision boundary on top of validation set.
     # Use save_path argument to save various visualizations for your own reference.
+    clf = LogisticRegression()
+    clf.fit(x_train, y_train)
+    predictions = clf.predict(x_train)
+    np.savetxt(save_path, predictions, fmt='%.4f')
+    import matplotlib.pyplot as plt
+    plt.scatter(x_train[:, 1], x_train[:, 2], c=predictions, cmap='coolwarm', alpha=0.5)
+    plt.title('Logistic Regression Predictions')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.colorbar(label='Predicted Probability')
+    plt.savefig(save_path.replace('.txt', '.png'))
+    # Plot the decision boundary
+    x1 = np.linspace(min(x_train[:, 1]), max(x_train[:, 1]), 100)
+    x2 = -(clf.theta[0] / clf.theta[2] + clf.theta[1] / clf.theta[2] * x1)
+    plt.plot(x1, x2, color='red', linewidth=2, label='Decision Boundary')
+    plt.legend()
+    plt.show()
+
+
+
+
+
     # *** END CODE HERE ***
 
 
@@ -53,6 +75,21 @@ class LogisticRegression:
             y: Training example labels. Shape (n_examples,).
         """
         # *** START CODE HERE ***
+        if self.theta is None:
+            self.theta = np.zeros(x.shape[1])
+        for iter in range(self.max_iter):
+            h_X=1/(1+np.exp(-self.theta.T@x.T))
+            J_X=-np.mean(y * np.log(h_X) + (1 - y) * np.log(1 - h_X))
+            # Gradient of the loss function
+            grad= x.T @ (h_X - y) / y.shape[0]
+            # Update theta
+            update=self.learning_rate*grad
+            if np.linalg.norm(update)<self.eps:
+                break
+            self.theta -= update
+            if self.verbose:
+                loss= np.mean(-y * np.log(h_X+self.eps) - (1 - y) * np.log(1 - h_X+self.eps))
+                print(f'Loss after {iter} iterations: {loss:.4f}')
         # *** END CODE HERE ***
 
     def predict(self, x):
@@ -65,6 +102,8 @@ class LogisticRegression:
             Outputs of shape (n_examples,).
         """
         # *** START CODE HERE ***
+        predictions = 1 / (1 + np.exp(-self.theta.T @ x.T))
+        return predictions
         # *** END CODE HERE ***
 
 if __name__ == '__main__':

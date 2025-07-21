@@ -17,6 +17,21 @@ def main(lr, train_path, eval_path, save_path):
     # *** START CODE HERE ***
     # Fit a Poisson Regression model
     # Run on the validation set, and use np.savetxt to save outputs to save_path
+    Poisson_model=PoissonRegression(step_size=lr)
+    Poisson_model.fit(x_train, y_train)
+    x_eval, y_eval = util.load_dataset(eval_path, add_intercept=True)
+    predictions = Poisson_model.predict(x_eval)
+    np.savetxt(save_path, predictions, fmt='%.4f')
+    # Plot the predictions vs ground truth
+    plt.scatter(range(len(predictions)), predictions, label='Predictions', color='blue')
+    plt.scatter(range(len(y_eval)), y_eval, label='Ground Truth', color='red', alpha=0.5)
+    plt.xlabel('Example Index')
+    plt.ylabel('Predicted Value')
+    plt.title('Poisson Regression Predictions')
+
+    plt.legend()
+    plt.show()
+
     # *** END CODE HERE ***
 
 
@@ -54,6 +69,18 @@ class PoissonRegression:
             y: Training example labels. Shape (n_examples,).
         """
         # *** START CODE HERE ***
+        if self.theta is None:
+            self.theta = np.zeros(x.shape[1])
+        for iter in range(self.max_iter):
+            grad=x.T@(y-np.exp(x@self.theta))
+            update=self.step_size*grad
+            if np.abs(np.linalg.norm(update))<self.eps:
+                break
+            self.theta += update
+            if self.verbose:
+                loss= -np.mean(y * (x @ self.theta) - np.exp(x @ self.theta))
+                print(f'Loss after {iter} iterations: {loss:.4f}')
+
         # *** END CODE HERE ***
 
     def predict(self, x):
@@ -66,6 +93,8 @@ class PoissonRegression:
             Floating-point prediction for each input, shape (n_examples,).
         """
         # *** START CODE HERE ***
+        predict= np.exp(x @ self.theta)
+        return predict
         # *** END CODE HERE ***
 
 if __name__ == '__main__':
