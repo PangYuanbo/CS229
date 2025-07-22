@@ -76,11 +76,11 @@ class LinearModel(object):
             Outputs of shape (n_examples,).
         """
         # *** START CODE HERE ***
-        m = X.shape[0]
-        y_pred = np.zeros((m, 1))
+        m=X.shape[0]
+        y_pred=np.zeros((m, 1))
         for i in range(m):
 
-            y_pred[i] = X[i] @ self.theta
+            y_pred[i]=X[i]@self.theta
         return y_pred
         # *** END CODE HERE ***
 
