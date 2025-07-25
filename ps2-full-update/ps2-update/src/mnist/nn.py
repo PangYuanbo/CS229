@@ -21,6 +21,10 @@ def softmax(x):
         A 2d numpy float array containing the softmax results of shape batch_size x number_of_classes
     """
     # *** START CODE HERE ***
+    x= x - np.max(x, axis=1, keepdims=True)  # Subtract max for numerical stability
+    x= np.exp(x)  # Exponentiate the adjusted values
+    x= x / np.sum(x, axis=1, keepdims=True)  # Normalize by the sum along the classes
+    return x
     # *** END CODE HERE ***
 
 def sigmoid(x):
@@ -34,6 +38,8 @@ def sigmoid(x):
         A numpy float array containing the sigmoid results
     """
     # *** START CODE HERE ***
+    a= 1 / (1 + np.exp(-x))
+    return a
     # *** END CODE HERE ***
 
 def get_initial_params(input_size, num_hidden, num_output):
@@ -63,6 +69,13 @@ def get_initial_params(input_size, num_hidden, num_output):
     """
 
     # *** START CODE HERE ***
+    params = {
+        'W1': np.random.normal(0, 1, (input_size, num_hidden)),
+        'b1': np.zeros(num_hidden),
+        'W2': np.random.normal(0, 1, (num_hidden, num_output)),
+        'b2': np.zeros(num_output)
+    }
+    return params
     # *** END CODE HERE ***
 
 def forward_prop(data, one_hot_labels, params):
@@ -84,6 +97,13 @@ def forward_prop(data, one_hot_labels, params):
             3. The average loss for these data elements
     """
     # *** START CODE HERE ***
+    x= data
+    W1, b1 = params['W1'], params['b1']
+    W2, b2 = params['W2'], params['b2']
+    h = sigmoid(x@W1 + b1)  # Hidden layer activation
+    output = softmax(h@W2 + b2)  # Output layer activation
+    loss = -np.mean(np.sum(one_hot_labels * np.log(output + 1e-10), axis=1))  # Compute the average loss
+    return h, output, loss  # Return the hidden layer activations, output layer activations, and loss
     # *** END CODE HERE ***
 
 def backward_prop(data, one_hot_labels, params, forward_prop_func):
@@ -107,6 +127,26 @@ def backward_prop(data, one_hot_labels, params, forward_prop_func):
             W1, W2, b1, and b2
     """
     # *** START CODE HERE ***
+    h, output, _ = forward_prop_func(data, one_hot_labels, params)
+    W1, b1 = params['W1'], params['b1']
+    W2, b2 = params['W2'], params['b2']
+    batch_size = data.shape[0]
+    # Compute gradients
+    d_output = output - one_hot_labels  # Gradient of the loss with respect to output
+    dW2 = h.T @ d_output / batch_size  # Gradient of W2
+    db2 = np.sum(d_output, axis=0) / batch_size  # Gradient of b2
+    d_hidden = d_output @ W2.T * (h * (1 - h))  # Gradient of the hidden layer
+    dW1 = data.T @ d_hidden / batch_size  # Gradient of W1
+    db1 = np.sum(d_hidden, axis=0) / batch_size  # Gradient of b1
+    # Return gradients in a dictionary
+    gradients = {
+        'W1': dW1,
+        'b1': db1,
+        'W2': dW2,
+        'b2': db2
+    }
+    return gradients
+
     # *** END CODE HERE ***
 
 
@@ -132,6 +172,25 @@ def backward_prop_regularized(data, one_hot_labels, params, forward_prop_func, r
             W1, W2, b1, and b2
     """
     # *** START CODE HERE ***
+    h, output, _ = forward_prop_func(data, one_hot_labels, params)
+    W1, b1 = params['W1'], params['b1']
+    W2, b2 = params['W2'], params['b2']
+    batch_size = data.shape[0]
+    # Compute gradients
+    d_output = output - one_hot_labels  # Gradient of the loss with respect to output
+    dW2 = h.T @ d_output / batch_size + 2*reg * W2  # Gradient of W2 with regularization
+    db2 = np.sum(d_output, axis=0) / batch_size  # Gradient of b2
+    d_hidden = d_output @ W2.T * (h * (1 - h))  # Gradient of the hidden layer
+    dW1 = data.T @ d_hidden / batch_size + 2*reg * W1  # Gradient of W1 with regularization
+    db1 = np.sum(d_hidden, axis=0) / batch_size  # Gradient of b1
+    # Return gradients in a dictionary
+    gradients = {
+        'W1': dW1,
+        'b1': db1,
+        'W2': dW2,
+        'b2': db2
+    }
+    return gradients
     # *** END CODE HERE ***
 
 def gradient_descent_epoch(train_data, one_hot_train_labels, learning_rate, batch_size, params, forward_prop_func, backward_prop_func):
@@ -154,6 +213,23 @@ def gradient_descent_epoch(train_data, one_hot_train_labels, learning_rate, batc
     """
 
     # *** START CODE HERE ***
+    (nexp, dim) = train_data.shape
+    num_batches = int(np.ceil(nexp / batch_size))
+    for i in range(num_batches):
+        start = i * batch_size
+        end = min((i + 1) * batch_size, nexp)
+        batch_data = train_data[start:end, :]
+        batch_labels = one_hot_train_labels[start:end, :]
+
+        # Forward propagation to get the output and loss
+        h, output, _ = forward_prop_func(batch_data, batch_labels, params)
+
+        # Backward propagation to get the gradients
+        gradients = backward_prop_func(batch_data, batch_labels, params, forward_prop_func)
+        # Update parameters using the gradients and learning rate
+        for key in params.keys():
+            params[key] -= learning_rate * gradients[key]
+
     # *** END CODE HERE ***
 
     # This function does not return anything

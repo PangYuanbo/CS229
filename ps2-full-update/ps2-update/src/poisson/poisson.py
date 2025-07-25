@@ -23,14 +23,13 @@ def main(lr, train_path, eval_path, save_path):
     predictions = Poisson_model.predict(x_eval)
     np.savetxt(save_path, predictions, fmt='%.4f')
     # Plot the predictions vs ground truth
-    plt.scatter(range(len(predictions)), predictions, label='Predictions', color='blue')
-    plt.scatter(range(len(y_eval)), y_eval, label='Ground Truth', color='red', alpha=0.5)
-    plt.xlabel('Example Index')
-    plt.ylabel('Predicted Value')
-    plt.title('Poisson Regression Predictions')
-
+    plt.scatter(y_eval, predictions, alpha=0.6)
+    plt.plot([min(y_eval), max(y_eval)], [min(y_eval), max(y_eval)], 'k--', label='Ideal')  # y = x line
+    plt.xlabel('Ground Truth')
+    plt.ylabel('Predicted')
+    plt.title('Poisson Regression: Prediction vs. Truth')
     plt.legend()
-    plt.show()
+    plt.savefig(save_path.replace('.txt', '.png'))
 
     # *** END CODE HERE ***
 
