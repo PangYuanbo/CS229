@@ -18,7 +18,9 @@ def main(train_path, save_path):
     clf = LogisticRegression()
     clf.fit(x_train, y_train)
     predictions = clf.predict(x_train)
-    np.savetxt(save_path, predictions, fmt='%.4f')
+    # util.write_json(save_path, {'theta': clf.theta.tolist(), 'predictions': predictions.tolist()})
+    # util.plot_points(x_train, y_train)
+    # util.plot_contour(predictions)
     import matplotlib.pyplot as plt
     plt.scatter(x_train[:, 1], x_train[:, 2], c=predictions, cmap='coolwarm', alpha=0.5)
     plt.title('Logistic Regression Predictions')
@@ -31,7 +33,8 @@ def main(train_path, save_path):
     x2 = -(clf.theta[0] / clf.theta[2] + clf.theta[1] / clf.theta[2] * x1)
     plt.plot(x1, x2, color='red', linewidth=2, label='Decision Boundary')
     plt.legend()
-    plt.show()
+    plt.savefig(save_path.replace('.txt', '_boundary.png'))
+
 
 
 
@@ -65,6 +68,7 @@ class LogisticRegression:
         self.verbose = verbose
 
         # *** START CODE HERE ***
+        self.lamda = 0.01
         # *** END CODE HERE ***
 
     def fit(self, x, y):
@@ -79,9 +83,9 @@ class LogisticRegression:
             self.theta = np.zeros(x.shape[1])
         for iter in range(self.max_iter):
             h_X=1/(1+np.exp(-self.theta.T@x.T))
-            J_X=-np.mean(y * np.log(h_X) + (1 - y) * np.log(1 - h_X))
+            J_X=-np.mean(y * np.log(h_X) + (1 - y) * np.log(1 - h_X))+self.lamda*np.sum(self.theta**2)/2
             # Gradient of the loss function
-            grad= x.T @ (h_X - y) / y.shape[0]
+            grad= x.T @ (h_X - y) / y.shape[0]+self.lamda*self.theta
             # Update theta
             update=self.learning_rate*grad
             if np.linalg.norm(update)<self.eps:
@@ -90,6 +94,7 @@ class LogisticRegression:
             if self.verbose:
                 loss= np.mean(-y * np.log(h_X+self.eps) - (1 - y) * np.log(1 - h_X+self.eps))
                 print(f'Loss after {iter} iterations: {loss:.4f}')
+                # print(np.linalg.norm(self.theta))
         # *** END CODE HERE ***
 
     def predict(self, x):

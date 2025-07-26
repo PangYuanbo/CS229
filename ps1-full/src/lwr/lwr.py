@@ -27,7 +27,7 @@ def main(tau, train_path, eval_path):
     y_eval=y_eval.flatten()
     mse=np.mean((y_pred-y_eval)**2)
     print("mse:" + str(mse))
-    # Plot validation predictions on top of training set
+
     plt.figure(figsize=(8, 5))
     plt.plot(x_train[:, 1], y_train, 'bx', label="train")   # blue 'x' for training data
     plt.plot(x_eval[:, 1], y_pred, 'ro', label="predictions")  # red 'o' for predictions
