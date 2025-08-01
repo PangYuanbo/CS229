@@ -36,6 +36,21 @@ def optimal_step_weights():
     w = example_weights()
 
     # *** START CODE HERE ***
+    w['hidden_layer_0_1'] =1
+    w['hidden_layer_1_1'] = 0.4
+    w['hidden_layer_2_1'] = -3.5
+    w['hidden_layer_0_2'] =-0.018
+    w['hidden_layer_1_2'] = -5.1
+    w['hidden_layer_2_2'] = 1.3
+    w['hidden_layer_0_3'] = 3.8
+    w['hidden_layer_1_3'] = -1
+    w['hidden_layer_2_3'] = -0.95
+
+    w['output_layer_0'] = 0.4
+    w['output_layer_1'] = 0.7
+    w['output_layer_2'] =0.65
+    w['output_layer_3'] = -1
+
     # *** END CODE HERE ***
 
     return w
@@ -50,6 +65,20 @@ def optimal_linear_weights():
     w = example_weights()
 
     # *** START CODE HERE ***
+    w['hidden_layer_0_1'] =1
+    w['hidden_layer_1_1'] = 0.4
+    w['hidden_layer_2_1'] = -3.5
+    w['hidden_layer_0_2'] =-0.018
+    w['hidden_layer_1_2'] = -5.1
+    w['hidden_layer_2_2'] = 1.3
+    w['hidden_layer_0_3'] = 3.8
+    w['hidden_layer_1_3'] = -1
+    w['hidden_layer_2_3'] = -0.95
+
+    w['output_layer_0'] = 0.4
+    w['output_layer_1'] = 0.7
+    w['output_layer_2'] =0.65
+    w['output_layer_3'] = -1
     # *** END CODE HERE ***
 
     return w
@@ -84,7 +113,7 @@ if __name__ == "__main__":
     step_predict = lambda data: compute_predictions(data, step_weights, step_fn=True)
     step_y_pred = step_predict(x)
     print('Step function accuracy is: ' + str(np.mean(step_y_pred == y)))
-    util.plot(x, y, step_predict, save_path='step_weights.pdf')
+    util.plot(x, y, step_predict, save_path='step_weights.png')
 
     linear_weights = optimal_linear_weights()
     linear_predict = lambda data: compute_predictions(data, linear_weights, step_fn=False)
