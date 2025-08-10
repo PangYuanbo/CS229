@@ -26,17 +26,13 @@ def init_centroids(num_clusters, image):
     """
 
     # *** START YOUR CODE ***
-    Height, Width, Channels = image.shape
-    centroids_init = np.zeros((num_clusters, Channels), dtype=np.float32)
-    for i in range(num_clusters):
-        # Randomly select a pixel from the image
-        random_row = random.randint(0, Height - 1)
-        random_col = random.randint(0, Width - 1)
-        # Assign the RGB values of the selected pixel to the centroid
-        centroids_init[i] = image[random_row, random_col]
-        # Ensure the centroid is a float32 type
-        centroids_init[i] = centroids_init[i].astype(np.float32)
-    # Ensure centroids are unique by checking for duplicates
+    H, W, C = image.shape
+    img = image.astype(np.float32)
+    if img.max() > 1.0:
+        img /= 255.0
+    flat = img.reshape(-1, C)
+    idx = np.random.choice(H * W, size=num_clusters, replace=False)
+    centroids_init = flat[idx]
     # *** END YOUR CODE ***
 
     return centroids_init
@@ -69,7 +65,11 @@ def update_centroids(centroids, image, max_iter=30, print_every=10):
                 # Loop over all centroids and store distances in `dist`
                 # Find closest centroid and update `new_centroids`
         # Update `new_centroids`
+    img = image.astype(np.float32)
+    if img.max() > 1.0:
+        img /= 255.0
     Height, Width, Channels = image.shape
+    new_centroids = np.zeros(centroids.shape, dtype=np.float32)
     for iteration in range(max_iter):
         if iteration % print_every == 0:
             print(f'Iteration {iteration}/{max_iter}')
@@ -77,13 +77,14 @@ def update_centroids(centroids, image, max_iter=30, print_every=10):
         new_centroids=np.zeros(centroids.shape, dtype=np.float32)
         for h in range(Height):
             for w in range(Width):
-                pixel = image[h, w]
+                pixel = img[h, w]
                 dist=np.zeros(centroids.shape[0], dtype=np.float32)
                 for i in range(centroids.shape[0]):
                     # Calculate the Euclidean distance between the pixel and each centroid
-                    dist[i] = np.linalg.norm(pixel - centroids[i])
+                    diff = pixel - centroids[i]
+                    dist[i] = np.dot(diff, diff)
                 # Find the index of the closest centroid
-                closest_centroid_index = np.argmin(dist)
+                closest_centroid_index = int(np.argmin(dist))
 
                 new_centroids[closest_centroid_index]+= pixel
                 centroids_number[closest_centroid_index] += 1
@@ -125,15 +126,18 @@ def update_image(image, centroids):
             # Loop over all centroids and store distances in `dist`
             # Find closest centroid and update pixel value in `image`
     Height, Width, Channels = image.shape
+    img = image.astype(np.float32)
+    if img.max() > 1.0:
+        img /= 255.0
     for h in range(Height):
         for w in range(Width):
-            pixel = image[h, w]
+            pixel = img[h, w]
             dist = np.zeros(centroids.shape[0], dtype=np.float32)
             for i in range (centroids.shape[0]):
                 dist[i] = np.linalg.norm(pixel - centroids[i])
             closest_centroid_index = np.argmin(dist)
-            image[h, w] = centroids[closest_centroid_index]
-    image = image.astype(np.float32)  # Ensure the image is in float32 format
+            img[h, w] = centroids[closest_centroid_index]
+    image = img.astype(np.float32)  # Ensure the image is in float32 format
     # *** END YOUR CODE ***
 
     return image
